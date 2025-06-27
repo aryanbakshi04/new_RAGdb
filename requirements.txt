@@ -1,0 +1,10 @@
+streamlit
+langchain
+langchain-community
+chromadb
+sentence-transformers
+aiohttp
+python-dotenv
+tqdm
+google-generativeai
+pypdf
