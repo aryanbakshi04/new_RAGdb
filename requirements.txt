@@ -2,7 +2,7 @@ streamlit
 langchain
 langchain-community
 chromadb
-sqlite3>= 3.35.0
+pysqlite3-binary
 sentence-transformers
 aiohttp
 python-dotenv
