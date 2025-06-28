@@ -2,3 +2,7 @@
 2025-06-27 20:29:38,411 INFO src.vector_store: Successfully initialized vector database
 2025-06-27 20:29:38,412 INFO src.vector_store: Loaded 52 indexed ministries from metadata
 2025-06-27 20:29:38,413 INFO src.llm_client: Successfully initialized LLM client
+2025-06-28 01:14:45,271 INFO sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-06-28 01:15:05,023 INFO src.vector_store: Successfully initialized vector database
+2025-06-28 01:15:05,042 INFO src.vector_store: Loaded 52 indexed ministries from metadata
+2025-06-28 01:15:05,043 INFO src.llm_client: Successfully initialized LLM client
