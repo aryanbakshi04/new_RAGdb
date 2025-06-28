@@ -1,7 +1,8 @@
 streamlit
-langchain
-langchain-community
-chromadb
+langchain==0.0.267
+langchain-community==0.0.16
+chromadb==0.4.18
+pysqlite3-binary
 sentence-transformers
 aiohttp
 python-dotenv
