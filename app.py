@@ -1,4 +1,4 @@
-import chromadb_patch
+import db_patch
 import pysqlite3_setup
 import streamlit as st
 import os
