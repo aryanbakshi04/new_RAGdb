@@ -1,4 +1,3 @@
-import pysqlite3_setup
 import streamlit as st
 import os
 import logging
