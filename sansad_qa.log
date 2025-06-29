@@ -6,3 +6,15 @@
 2025-06-28 01:15:05,023 INFO src.vector_store: Successfully initialized vector database
 2025-06-28 01:15:05,042 INFO src.vector_store: Loaded 52 indexed ministries from metadata
 2025-06-28 01:15:05,043 INFO src.llm_client: Successfully initialized LLM client
+2025-06-29 01:20:58,578 INFO sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-06-29 01:21:06,108 INFO src.vector_store: Successfully initialized vector database
+2025-06-29 01:21:06,132 INFO src.vector_store: Loaded 52 indexed ministries from metadata
+2025-06-29 01:21:06,132 INFO src.llm_client: Successfully initialized LLM client
+2025-06-29 01:37:37,117 INFO sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-06-29 01:37:47,245 INFO src.vector_store: Successfully initialized vector database
+2025-06-29 01:37:47,248 INFO src.vector_store: Loaded 52 indexed ministries from metadata
+2025-06-29 01:37:47,249 INFO src.llm_client: Successfully initialized LLM client
+2025-06-30 00:15:08,726 INFO sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-06-30 00:15:17,801 INFO src.vector_store: Successfully initialized vector database
+2025-06-30 00:15:17,803 INFO src.vector_store: Loaded 52 indexed ministries from metadata
+2025-06-30 00:15:17,804 INFO src.llm_client: Successfully initialized LLM client

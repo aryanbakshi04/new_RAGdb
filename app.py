@@ -1,5 +1,3 @@
-import pysqlite3_setup
-import db_patch
 import streamlit as st
 import os
 import logging
@@ -7,6 +5,7 @@ from pathlib import Path
 import sys
 import asyncio
 import base64  # Correct import for base64 encoding
+import shutil  # For cleaning up temp directories
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
@@ -14,6 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 from src.config import Config
 from src.vector_store import VectorStore
 from src.llm_client import LLMClient
+from src.azure_storage import initialize_chroma_client  # Import Azure storage functionality
 
 # Configure logging
 logging.basicConfig(
@@ -66,8 +66,8 @@ def initialize_components():
             st.error("Environment validation failed. Check your API keys.")
             return None, None
         
-        # Initialize vector store
-        vector_store = VectorStore()
+        # Initialize vector store with Azure storage if running in Azure
+        vector_store = VectorStore(use_azure=os.environ.get("AZURE_STORAGE_CONNECTION_STRING") is not None)
         
         # Initialize LLM client
         llm_client = LLMClient()
@@ -77,6 +77,15 @@ def initialize_components():
         st.error(f"Error initializing components: {e}")
         logger.error(f"Error initializing components: {e}")
         return None, None
+
+# Clean up temporary vector DB directory when session ends
+def cleanup_temp_dir():
+    if 'temp_vector_db_path' in st.session_state and st.session_state['temp_vector_db_path']:
+        try:
+            shutil.rmtree(st.session_state['temp_vector_db_path'])
+            logger.info(f"Cleaned up temporary vector DB directory: {st.session_state['temp_vector_db_path']}")
+        except Exception as e:
+            logger.error(f"Error cleaning up temporary directory: {e}")
 
 # Main app
 def main():
@@ -103,7 +112,7 @@ def main():
     # Get indexed ministries
     indexed_ministries = list(vector_store.indexed_ministries)
     if not indexed_ministries:
-        st.warning("No ministries have been indexed. Please run the PDF fetcher first.")
+        st.warning("No ministries have been indexed. Please check if vector database was uploaded correctly to Azure.")
         return
     
     # Sort ministries alphabetically
@@ -190,11 +199,15 @@ def main():
                             st.markdown("---")
                 else:
                     # Message indicating why references are not shown
-                    st.info("Source documents are not shown because the question is not relevant to this ministry's affairs.")
+                    st.info("Alert: The asked question is not relevant to the ministry")
             
             except Exception as e:
                 st.error(f"Error processing query: {e}")
                 logger.error(f"Error processing query: {e}")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        # Clean up temporary directory on app exit
+        cleanup_temp_dir()
