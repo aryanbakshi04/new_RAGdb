@@ -15,3 +15,5 @@ python-dotenv
 tqdm
 google-generativeai
 pypdf
+azure-storage-blob==12.15.0
+azure-identity==1.12.0
