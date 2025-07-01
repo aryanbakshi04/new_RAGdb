@@ -24771,3 +24771,7 @@ Response headers:
 2025-07-02 00:10:10,792 INFO src.vector_store: Successfully initialized vector database
 2025-07-02 00:10:10,810 INFO src.vector_store: Loaded 52 indexed ministries from metadata
 2025-07-02 00:10:10,810 INFO src.llm_client: Successfully initialized LLM client
+2025-07-02 01:00:44,035 INFO sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-02 01:00:53,651 INFO src.vector_store: Successfully initialized vector database
+2025-07-02 01:00:53,666 INFO src.vector_store: Loaded 52 indexed ministries from metadata
+2025-07-02 01:00:53,667 INFO src.llm_client: Successfully initialized LLM client
