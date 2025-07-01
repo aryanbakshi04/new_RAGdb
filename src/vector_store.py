@@ -1,3 +1,4 @@
+# Add content to vector_store.py
 import logging
 import time
 from typing import List, Dict, Any, Optional
@@ -8,22 +9,13 @@ import os
 import json
 from pathlib import Path
 from .config import Config
-from .azure_storage import initialize_chroma_client  # Import Azure storage functionality
 
 logger = logging.getLogger(__name__)
 
 class VectorStore:
     """Manages the vector database for document storage and retrieval"""
     
-    def __init__(self, use_azure=False):
-        """
-        Initialize the Vector Store with either local or Azure cloud storage.
-        
-        Args:
-            use_azure (bool): If True, use Azure storage, otherwise use local storage.
-        """
-        self.use_azure = use_azure
-        
+    def __init__(self):
         # Initialize ChromaDB
         self._initialize_db()
         
@@ -34,50 +26,33 @@ class VectorStore:
     def _initialize_db(self):
         """Initialize the ChromaDB vector database"""
         try:
-            if self.use_azure:
-                logger.info("Initializing ChromaDB client from Azure storage")
-                self.client, self.temp_path = initialize_chroma_client()
-                # Store temp path in session state for cleanup later
-                import streamlit as st
-                st.session_state['temp_vector_db_path'] = self.temp_path
-                # Get collection from Azure-downloaded DB
-                self.collection = self.client.get_collection("ministry_documents")
-                
-                # Initialize embedding function
-                self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
-                    model_name=Config.EMBEDDING_MODEL
-                )
-                
-                logger.info("Successfully initialized vector database from Azure")
-            else:
-                # Configure settings for local DB
-                settings = Settings(
-                    anonymized_telemetry=False,
-                    allow_reset=True,
-                    is_persistent=True,
-                    persist_directory=str(Config.VECTOR_DB_DIR)
-                )
-                
-                # Create client
-                self.client = chromadb.PersistentClient(
-                    path=str(Config.VECTOR_DB_DIR),
-                    settings=settings
-                )
-                
-                # Initialize embedding function
-                self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
-                    model_name=Config.EMBEDDING_MODEL
-                )
-                
-                # Get or create collection
-                self.collection = self.client.get_or_create_collection(
-                    name="ministry_documents",
-                    embedding_function=self.embedding_function,
-                    metadata={"hnsw:space": "cosine"}  # Use cosine similarity
-                )
-                
-                logger.info("Successfully initialized local vector database")
-                self.temp_path = None
+            # Configure settings
+            settings = Settings(
+                anonymized_telemetry=False,
+                allow_reset=True,
+                is_persistent=True,
+                persist_directory=str(Config.VECTOR_DB_DIR)
+            )
+            
+            # Create client
+            self.client = chromadb.PersistentClient(
+                path=str(Config.VECTOR_DB_DIR),
+                settings=settings
+            )
+            
+            # Initialize embedding function
+            self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+                model_name=Config.EMBEDDING_MODEL
+            )
+            
+            # Get or create collection
+            self.collection = self.client.get_or_create_collection(
+                name="ministry_documents",
+                embedding_function=self.embedding_function,
+                metadata={"hnsw:space": "cosine"}  # Use cosine similarity
+            )
+            
+            logger.info("Successfully initialized vector database")
             
         except Exception as e:
             logger.error(f"Error initializing vector database: {e}")
@@ -86,25 +61,14 @@ class VectorStore:
     def _load_indexed_ministries(self):
         """Load information about which ministries have been indexed"""
         try:
-            # Determine the base path based on storage type
-            if self.use_azure:
-                base_path = Path(self.temp_path)
-            else:
-                base_path = Path(Config.VECTOR_DB_DIR)
-                
             # Try to load from metadata file
-            metadata_path = base_path / "indexed_ministries.json"
+            metadata_path = Path(Config.VECTOR_DB_DIR) / "indexed_ministries.json"
             
             if metadata_path.exists():
                 with open(metadata_path, 'r') as f:
                     data = json.load(f)
-                    # Handle both formats: direct list or object with "ministries" key
-                    if isinstance(data, list):
-                        self.indexed_ministries = set(data)
-                    elif "ministries" in data:
+                    if "ministries" in data:
                         self.indexed_ministries = set(data["ministries"])
-                    else:
-                        self.indexed_ministries = set()
                         
                 logger.info(f"Loaded {len(self.indexed_ministries)} indexed ministries from metadata")
                 return
@@ -124,10 +88,8 @@ class VectorStore:
                     if metadata and "ministry" in metadata:
                         self.indexed_ministries.add(metadata["ministry"])
                 
-                # Save to metadata file for future if not using Azure
-                # (we don't want to modify Azure storage from the app)
-                if not self.use_azure:
-                    self._save_indexed_ministries()
+                # Save to metadata file for future
+                self._save_indexed_ministries()
                 
                 logger.info(f"Found {len(self.indexed_ministries)} indexed ministries from collection")
                 
@@ -139,10 +101,6 @@ class VectorStore:
     
     def _save_indexed_ministries(self):
         """Save information about indexed ministries to a metadata file"""
-        # Skip saving if using Azure (read-only mode)
-        if self.use_azure:
-            return
-            
         try:
             metadata_path = Path(Config.VECTOR_DB_DIR) / "indexed_ministries.json"
             
@@ -164,12 +122,8 @@ class VectorStore:
     
     def add_ministry_to_indexed(self, ministry: str):
         """Mark a ministry as indexed"""
-        # Only allow modifications in local mode
-        if not self.use_azure:
-            self.indexed_ministries.add(ministry)
-            self._save_indexed_ministries()
-        else:
-            logger.warning("Cannot modify indexed ministries in Azure mode (read-only)")
+        self.indexed_ministries.add(ministry)
+        self._save_indexed_ministries()
     
     def create_embedding(self, text: str) -> List[float]:
         """Create embedding vector for a text string"""
@@ -184,11 +138,6 @@ class VectorStore:
         Add documents to the vector store
         Each document should have: id, text, metadata
         """
-        # Prevent modifications in Azure mode
-        if self.use_azure:
-            logger.warning("Cannot add documents in Azure mode (read-only)")
-            return
-            
         try:
             if not documents:
                 logger.warning("No documents to add")
@@ -360,11 +309,6 @@ class VectorStore:
     
     def clear(self):
         """Clear all documents from the collection"""
-        # Prevent modifications in Azure mode
-        if self.use_azure:
-            logger.warning("Cannot clear collection in Azure mode (read-only)")
-            return
-            
         try:
             self.collection.delete(where={})
             self.indexed_ministries.clear()
