@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - MinistryAnswers
+name: Build and deploy Python app to Azure Web App - ministryanswers
 
 on:
   push:
@@ -32,14 +32,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         
-      - name: Verify dependencies installed
-        run: pip check
-        
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: |
-          zip -r release.zip . -x "venv/*" "__pycache__/*" "*.pyc" ".env" "data/vector_db/chroma.sqlite3"
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -69,14 +65,14 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FF3733B4524D417EA4FC51A099E85D84 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1761F197F2A04F21B5A740847314D850 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_847FD60ABC5B4B9394004379E4D220DA }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FACA3D7C6FC648B0AA6902520508B4AB }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DA0BD9F0E81C4FD0B66A8537FBAF60A8 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_82751D52F27A4106AAE8554DB86EED5F }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'MinistryAnswers'
+          app-name: 'ministryanswers'
           slot-name: 'Production'
-          package: .
+          
