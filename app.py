@@ -96,7 +96,7 @@ def main():
         return
     
     # Sidebar - Ministry selection
-    st.sidebar.title("Select Ministry")
+    st.sidebar.title("Select a Ministry")
     
     # Get indexed ministries
     indexed_ministries = list(vector_store.indexed_ministries)
@@ -115,7 +115,7 @@ def main():
     )
     
     # Input for question
-    query = st.text_input("Enter your question about the selected ministry:", key="query")
+    query = st.text_input("Enter your question for the selected ministry:", key="query")
     
     # Results area
     if query and st.button("Submit Question"):

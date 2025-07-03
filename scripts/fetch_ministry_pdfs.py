@@ -13,7 +13,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from src.config import Config
 from src.sansad_client import SansadClient
-from src.pdf_classifier import PDFClassifier
 from src.document_processor import DocumentProcessor
 from src.vector_store import VectorStore
 
@@ -32,12 +31,8 @@ class ComprehensivePDFFetcher:
     """Fetches ALL PDFs from Sansad.in API for each ministry"""
     
     def __init__(self):
-        # Update config with current timestamp and user
-        Config.CURRENT_USER = "aryanbakshi04"
-        Config.CURRENT_TIME = "2025-06-25 18:22:29"
         
         self.sansad_client = SansadClient()
-        self.pdf_classifier = PDFClassifier()
         self.doc_processor = DocumentProcessor()
         self.vector_store = VectorStore()
         
@@ -145,16 +140,6 @@ class ComprehensivePDFFetcher:
             return
             
         print(f"Found {len(pdf_files)} PDFs to classify")
-        
-        # Process each PDF
-        for pdf_path in tqdm(pdf_files, desc="Classifying PDFs"):
-            try:
-                # Classify PDF by analyzing content
-                self.pdf_classifier.organize_pdf(str(pdf_path))
-                    
-            except Exception as e:
-                logger.error(f"Error processing {pdf_path}: {e}")
-                self.stats["errors"] += 1
     
     async def build_vector_database(self):
         """Build vector database from organized PDFs"""
