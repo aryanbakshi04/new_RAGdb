@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 import sys
 import asyncio
-import base64  # Correct import for base64 encoding
+import base64 
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
