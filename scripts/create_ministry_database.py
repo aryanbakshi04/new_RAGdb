@@ -8,7 +8,7 @@ import sys
 import json
 
 from src.config import Config
-from src.pdf_classifier import PDFClassifier
+# from src.pdf_classifier import PDFClassifier
 from src.document_processor import DocumentProcessor
 from src.vector_store import VectorStore
 
@@ -28,7 +28,7 @@ class MinistryDatabaseCreator:
     
     def __init__(self, force_rebuild=False):
         self.force_rebuild = force_rebuild
-        self.pdf_classifier = PDFClassifier()
+        # self.pdf_classifier = PDFClassifier()
         self.doc_processor = DocumentProcessor()
         self.vector_store = VectorStore()
         
@@ -96,25 +96,6 @@ class MinistryDatabaseCreator:
             
         self.stats["total_pdfs"] = len(pdf_files)
         print(f"Found {len(pdf_files)} PDFs in cache directory")
-        
-        # Process each PDF
-        for pdf_path in tqdm(pdf_files, desc="Classifying PDFs"):
-            try:
-                # Classify PDF by analyzing content
-                metadata = self.pdf_classifier.organize_pdf(str(pdf_path))
-                
-                # Update statistics
-                ministry = metadata.get("ministry", "Unknown Ministry")
-                self.ministry_counts[ministry] = self.ministry_counts.get(ministry, 0) + 1
-                
-                if ministry == "Unknown Ministry":
-                    self.stats["unknown_pdfs"] += 1
-                else:
-                    self.stats["classified_pdfs"] += 1
-                    
-            except Exception as e:
-                logger.error(f"Error processing {pdf_path}: {e}")
-                self.stats["errors"] += 1
         
         # Print ministry distribution
         print("\nPDF Distribution by Ministry:")
