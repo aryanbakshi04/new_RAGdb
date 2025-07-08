@@ -33,7 +33,7 @@ class Config:
     CHUNK_OVERLAP = 200
 
     # API settings
-    SANSAD_API_URL = "https://sansad.in/api_ls/question/getFilteredQuestionsAns"
+    SANSAD_API_URL = "https://sansad.in/api_ls/question/qetFilteredQuestionsAns"
     PDF_BASE_URL = "https://sansad.in/"
     DEFAULT_LOK_SABHA = 18
     DEFAULT_SESSION = 4
