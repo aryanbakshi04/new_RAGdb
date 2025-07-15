@@ -37,10 +37,8 @@ jobs:
             source venv/bin/activate
             python -m pip install --upgrade pip setuptools wheel
 
-      - name: Install dependencies
-        run: |
-          source venv/bin/activate
-          pip install -r requirements.txt
+      - name: Install dependencies (wheels only)
+        run: pip install --only-binary=:all: -r requirements.txt || pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
