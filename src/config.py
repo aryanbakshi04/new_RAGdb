@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import logging
 from datetime import datetime
+import json
 
 # Load environment variables
 load_dotenv()
@@ -140,3 +141,29 @@ class Config:
             return False
 
         return True
+
+
+def _save_indexed_ministries(self):
+    """Save information about indexed ministries to a metadata file"""
+    try:
+        metadata_path = Path(Config.VECTOR_DB_DIR) / "indexed_ministries.json"
+
+        # Generate timestamp directly
+        from datetime import datetime
+        current_time = datetime.now().isoformat()
+        
+        with open(metadata_path, "w") as f:
+            json.dump(
+                {
+                    "ministries": list(self.indexed_ministries),
+                    "updated_at": current_time,
+                    "updated_by": os.getenv("USERNAME", "anonymous"),
+                },
+                f,
+                indent=2,
+            )
+
+        logger.info(f"Saved {len(self.indexed_ministries)} indexed ministries to metadata")
+
+    except Exception as e:
+        logger.warning(f"Error saving indexed ministries: {e}")

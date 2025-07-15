@@ -1,6 +1,7 @@
 import os
 import logging
 import asyncio
+from datetime import datetime
 import time
 from pathlib import Path
 from tqdm import tqdm
@@ -47,8 +48,8 @@ class MinistryDatabaseCreator:
         start_time = time.time()
 
         print("=" * 70)
-        print(f"MINISTRY DATABASE CREATOR - Started at {Config.CURRENT_TIME}")
-        print(f"User: {Config.CURRENT_USER}")
+        print(f"MINISTRY DATABASE CREATOR - Started at {datetime.now().isoformat()}")
+        # print(f"User: {Config.CURRENT_USER}")
         print("=" * 70)
 
         # Step 1: Create directories
@@ -186,7 +187,7 @@ class MinistryDatabaseCreator:
                         "original_ministry": donor,
                         "confidence": 0.1,  # Low confidence for redistributed PDFs
                         "original_path": str(pdf_path),
-                        "classified_by": Config.CURRENT_USER,
+                        # "classified_by": Config.CURRENT_USER,
                         "classified_at": Config.CURRENT_TIME,
                         "classification_method": "redistribution",
                     }
@@ -212,6 +213,10 @@ class MinistryDatabaseCreator:
         """Build vector database from organized PDFs"""
         # Clear existing vector store if requested
         if self.force_rebuild and self.vector_store.indexed_ministries:
+            confirm = input("WARNING: This will delete ALL indexed data. Type 'YES' to continue: ")
+            if confirm != "YES":
+                print("Aborted.")
+                return
             print("Clearing existing vector store...")
             self.vector_store.clear()
 

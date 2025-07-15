@@ -229,67 +229,83 @@ class VectorStore:
     def search_with_embedding(
         self, embedding: List[float], ministry: str, n_results: int = 10
     ) -> List[Dict[str, Any]]:
-        """
-        Search for documents using a pre-computed embedding vector
-        Filters by ministry to ensure only relevant documents are returned
-        """
+        """Search for documents using a pre-computed embedding vector"""
         try:
-            # Create where clause to filter by ministry
-            where_clause = {"ministry": {"$eq": ministry}} if ministry else None
+            # Try with ministry filter first
+            try:
+                where_clause = {"ministry": {"$eq": ministry}} if ministry else None
 
-            # Query the collection
+                results = self.collection.query(
+                    query_embeddings=[embedding],
+                    n_results=n_results * 2,
+                    where=where_clause,
+                )
+
+                # If we got results, process them
+                if results["ids"] and results["ids"][0]:
+                    # Process results as before...
+                    return self._process_search_results(results, n_results)
+
+            except Exception as inner_e:
+                logger.warning(f"Error searching with ministry filter: {inner_e}")
+
+            # Fallback: try without ministry filter
+            logger.info(f"Trying fallback search without ministry filter for {ministry}")
             results = self.collection.query(
                 query_embeddings=[embedding],
-                n_results=n_results * 2,  # Get more results to handle filtering
-                where=where_clause,
+                n_results=n_results * 2
             )
 
-            # Check if we have results
-            if not results["ids"] or not results["ids"][0]:
-                return []
-
-            # Process results
-            documents = []
-            seen_texts = set()  # For deduplication
-
-            for i in range(len(results["ids"][0])):
-                doc_id = results["ids"][0][i]
-                doc_text = results["documents"][0][i]
-                doc_metadata = results["metadatas"][0][i]
-
-                # Skip duplicates
-                if doc_text in seen_texts:
-                    continue
-
-                seen_texts.add(doc_text)
-
-                # Calculate relevance score (convert distance to similarity)
-                distance = results["distances"][0][i] if "distances" in results else 0.0
-                similarity = 1.0 - distance  # Convert distance to similarity
-
-                # Create document dictionary
-                document = {
-                    "id": doc_id,
-                    "text": doc_text,
-                    "metadata": doc_metadata,
-                    "distance": distance,
-                    "relevance_score": similarity,
-                }
-
-                documents.append(document)
-
-                # Break if we have enough results
-                if len(documents) >= n_results:
-                    break
-
-            # Sort by relevance
-            documents.sort(key=lambda x: x["relevance_score"], reverse=True)
-
-            return documents
+            return self._process_search_results(results, n_results)
 
         except Exception as e:
             logger.error(f"Error searching with embedding: {e}")
             return []
+
+    def _process_search_results(self, results, n_results):
+        """Helper to process search results"""
+        # Check if we have results
+        if not results["ids"] or not results["ids"][0]:
+            return []
+
+        # Process results
+        documents = []
+        seen_texts = set()  # For deduplication
+
+        for i in range(len(results["ids"][0])):
+            doc_id = results["ids"][0][i]
+            doc_text = results["documents"][0][i]
+            doc_metadata = results["metadatas"][0][i]
+
+            # Skip duplicates
+            if doc_text in seen_texts:
+                continue
+
+            seen_texts.add(doc_text)
+
+            # Calculate relevance score
+            distance = results["distances"][0][i] if "distances" in results else 0.0
+            similarity = 1.0 - distance  # Convert distance to similarity
+
+            # Create document dictionary
+            document = {
+                "id": doc_id,
+                "text": doc_text,
+                "metadata": doc_metadata,
+                "distance": distance,
+                "relevance_score": similarity,
+            }
+
+            documents.append(document)
+
+            # Break if we have enough results
+            if len(documents) >= n_results:
+                break
+
+        # Sort by relevance
+        documents.sort(key=lambda x: x["relevance_score"], reverse=True)
+
+        return documents
 
     def search_by_text(
         self, query: str, ministry: str, n_results: int = 10
