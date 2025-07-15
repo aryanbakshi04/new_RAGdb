@@ -8,6 +8,12 @@ mkdir -p logs
 python3 --version > logs/python_version.txt 2>&1
 which python3 >> logs/python_version.txt 2>&1
 
-# Install requirements and start app
+# Install requirements
 python3 -m pip install -r requirements.txt > logs/startup.log 2>&1
+
+# Set environment variables for pysqlite3
+export PYTHONPATH=/home/site/wwwroot/venv/lib/python3.10/site-packages/pysqlite3
+export LD_PRELOAD=/home/site/wwwroot/venv/lib/python3.10/site-packages/pysqlite3/libsqlite3.so
+
+# Start the app
 streamlit run app.py --server.port 8000 --server.address 0.0.0.0 >> logs/startup.log 2>&1
