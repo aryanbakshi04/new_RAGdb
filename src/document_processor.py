@@ -181,3 +181,19 @@ class DocumentProcessor:
         except Exception as e:
             logger.error(f"Error processing PDFs for ministry {ministry}: {e}")
             return []
+
+    def process_pdf_files(self, pdf_files, ministry="Unknown"):
+        """
+        Process a list of PDF files and return all document chunks.
+        """
+        all_documents = []
+        for pdf_path in pdf_files:
+            metadata = {
+                "ministry": ministry,
+                "filename": os.path.basename(str(pdf_path)),
+                "source": str(pdf_path),
+            }
+            documents = self.process_pdf(str(pdf_path), metadata)
+            if documents:
+                all_documents.extend(documents)
+        return all_documents

@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from tqdm import tqdm
 import time
+from datetime import datetime
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -107,8 +108,7 @@ class ComprehensivePDFFetcher:
         """Fetch ALL PDFs for ALL ministries"""
         start_time = time.time()
 
-        print(f"Starting COMPREHENSIVE PDF fetch process at {Config.CURRENT_TIME}")
-        print(f"User: {Config.CURRENT_USER}")
+        print(f"Starting COMPREHENSIVE PDF fetch process at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("=" * 70)
         print(f"Target: ALL available PDFs for ALL ministries")
         print("This process may take several hours to complete.")

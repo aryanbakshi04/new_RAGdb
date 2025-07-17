@@ -1,13 +1,10 @@
-import pysqlite3
-import sys
-sys.modules["sqlite3"] = pysqlite3
 import streamlit as st
 import os
 import logging
 from pathlib import Path
 import sys
 import asyncio
-import base64 
+import base64
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
@@ -118,7 +115,7 @@ def main():
     selected_ministry = st.sidebar.selectbox("", options=indexed_ministries, index=0)
 
     # Input for question
-    query = st.text_input("Enter your question for the selected ministry:", key="query")
+    query = st.text_input("Enter your question for the selected ministry:", key="query",label_visibility="visible")
 
     # Results area
     if query and st.button("Submit Question"):

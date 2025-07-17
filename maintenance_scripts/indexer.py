@@ -28,7 +28,7 @@ for metadata in results["metadatas"]:
 metadata_file = Path(Config.VECTOR_DB_DIR) / "indexed_ministries.json"
 with open(metadata_file, "w") as f:
     json.dump({
-        "indexed_ministries": list(indexed_ministries),
+        "ministries": list(indexed_ministries),
         "timestamp": "2025-07-14 23:30:00",
         "count": len(indexed_ministries)
     }, f, indent=2)

@@ -1,7 +1,7 @@
 data/vector_db/chroma.sqlite3
 __pycache__/
 *.pyc
-.env
+.venv
 /data/
 /data/**
 *.bin
