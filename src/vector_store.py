@@ -1,6 +1,7 @@
 # Add content to vector_store.py
 import logging
 import time
+from datetime import datetime
 from typing import List, Dict, Any, Optional
 import chromadb
 from chromadb.config import Settings
@@ -114,7 +115,7 @@ class VectorStore:
                 json.dump(
                     {
                         "ministries": list(self.indexed_ministries),
-                        "updated_at": Config.CURRENT_TIME,
+                        "updated_at": datetime.now().isoformat(),
                         "updated_by": Config.CURRENT_USER,
                     },
                     f,

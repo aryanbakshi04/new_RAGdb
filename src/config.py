@@ -156,7 +156,7 @@ def _save_indexed_ministries(self):
             json.dump(
                 {
                     "ministries": list(self.indexed_ministries),
-                    "updated_at": current_time,
+                    "updated_at": datetime.now().isoformat(),
                     "updated_by": os.getenv("USERNAME", "anonymous"),
                 },
                 f,
