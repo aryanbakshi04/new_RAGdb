@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Create and start virtual environment
         run: |
@@ -41,11 +41,11 @@ jobs:
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
-      - name: Remove data and cache folders before zipping
+      - name: Remove cache folders before zipping
         run: |
-          rm -rf data/
+          rm -rf data/pdf_cache/
+          rm -rf data/ministry_pdfs/
           rm -rf venv/
-          find . -name "*.sqlite3" -delete
           find . -name "*.bin" -delete
 
       - name: Zip artifact for deployment
