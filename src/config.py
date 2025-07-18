@@ -5,10 +5,8 @@ import logging
 from datetime import datetime
 import json
 
-# Load environment variables
 load_dotenv()
 
-# Configure logger
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -18,36 +16,31 @@ logger = logging.getLogger("sansad_qa")
 
 
 class Config:
-    # API Keys
+
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-    # Directory structure
     BASE_DIR = Path(__file__).parent.parent
     DATA_DIR = BASE_DIR / "data"
     PDF_CACHE_DIR = DATA_DIR / "pdf_cache"
     MINISTRY_PDF_DIR = DATA_DIR / "ministry_pdfs"
     VECTOR_DB_DIR = DATA_DIR / "vector_db"
 
-    # Model settings
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     CHUNK_SIZE = 1000
     CHUNK_OVERLAP = 200
 
-    # API settings
     SANSAD_API_URL = "https://sansad.in/api_ls/question/qetFilteredQuestionsAns"
     PDF_BASE_URL = "https://sansad.in/"
     DEFAULT_LOK_SABHA = 18
     DEFAULT_SESSION = 4
     DEFAULT_PAGE_SIZE = 100
 
-    # Processing settings
     MAX_RETRIES = 3
     TIMEOUT = 30
     RATE_LIMIT_DELAY = 1
     MAX_DOCS_PER_QUERY = 10
     PDF_BATCH_SIZE = 20
 
-    # Complete list of ministries
     MINISTRIES = [
         "Ministry of Agriculture and Farmers Welfare",
         "Ministry of Chemicals and Fertilizers",
@@ -105,29 +98,23 @@ class Config:
 
     @staticmethod
     def sanitize_ministry_name(ministry):
-        """Convert ministry name to directory-safe format"""
         return ministry.replace(" ", "_").replace(",", "").replace("'", "")
 
     @classmethod
     def get_ministry_dir(cls, ministry):
-        """Get directory path for a specific ministry"""
         dir_name = cls.sanitize_ministry_name(ministry)
         return cls.MINISTRY_PDF_DIR / dir_name
 
     @classmethod
     def setup_directories(cls):
-        """Create necessary directories if they don't exist"""
-        # Create main directories
         cls.PDF_CACHE_DIR.mkdir(parents=True, exist_ok=True)
         cls.MINISTRY_PDF_DIR.mkdir(parents=True, exist_ok=True)
         cls.VECTOR_DB_DIR.mkdir(parents=True, exist_ok=True)
 
-        # Create directory for each ministry
         for ministry in cls.MINISTRIES:
             ministry_dir = cls.get_ministry_dir(ministry)
             ministry_dir.mkdir(exist_ok=True)
 
-        # Create unknown ministry directory
         unknown_dir = cls.MINISTRY_PDF_DIR / "Unknown_Ministry"
         unknown_dir.mkdir(exist_ok=True)
 
@@ -135,7 +122,6 @@ class Config:
 
     @classmethod
     def validate_environment(cls):
-        """Validate environment configuration"""
         if not cls.GEMINI_API_KEY:
             logger.error("GEMINI_API_KEY not found in environment variables")
             return False
@@ -144,14 +130,11 @@ class Config:
 
 
 def _save_indexed_ministries(self):
-    """Save information about indexed ministries to a metadata file"""
     try:
         metadata_path = Path(Config.VECTOR_DB_DIR) / "indexed_ministries.json"
 
-        # Generate timestamp directly
-        from datetime import datetime
         current_time = datetime.now().isoformat()
-        
+
         with open(metadata_path, "w") as f:
             json.dump(
                 {
@@ -163,7 +146,9 @@ def _save_indexed_ministries(self):
                 indent=2,
             )
 
-        logger.info(f"Saved {len(self.indexed_ministries)} indexed ministries to metadata")
+        logger.info(
+            f"Saved {len(self.indexed_ministries)} indexed ministries to metadata"
+        )
 
     except Exception as e:
         logger.warning(f"Error saving indexed ministries: {e}")

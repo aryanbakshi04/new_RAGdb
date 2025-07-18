@@ -32,7 +32,6 @@ def get_web_content(url):
     return None
 
 def gen_webhash(content):
-    """Generate a SHA256 hash from the website content."""
     return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
 def load_previous_hash():
@@ -59,9 +58,7 @@ def main():
     if previous_hash != current_hash:
         logging.info("Website content has changed. Fetching new PDFs and updating database incrementally...")
         try:
-            # Fetch new PDFs (from new_pdf_urls.json or similar)
             subprocess.run(["python", "src/fetch_ministry_pdfs.py", "--url-file", "new_pdf_urls.json"], check=True)
-            # Only update database for new PDFs
             subprocess.run(["python", "src/update_ministry_database.py", "--url-file", "new_pdf_urls.json"], check=True)
             logging.info("Successfully fetched new PDFs and incrementally updated the database.")
         except subprocess.CalledProcessError as e:

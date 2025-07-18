@@ -11,8 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class SansadClient:
-    """Client for interacting with the Sansad.in API and downloading PDFs"""
-
     def __init__(self):
         self.base_url = Config.SANSAD_API_URL
         self.pdf_base_url = Config.PDF_BASE_URL
@@ -21,27 +19,21 @@ class SansadClient:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         }
 
-        # Ensure PDF cache directory exists
         os.makedirs(Config.PDF_CACHE_DIR, exist_ok=True)
 
     def _format_pdf_url(self, pdf_url: str) -> str:
-        """Format PDF URL to be accessible"""
         if not pdf_url:
             return ""
 
-        # Remove localhost URL if present
         if "localhost" in pdf_url:
             pdf_url = pdf_url.split("getFile/")[-1]
 
-        # If already a full URL, return as is
         if pdf_url.startswith("http"):
             return pdf_url
 
-        # Construct the correct Sansad URL
         if pdf_url.startswith("/"):
             pdf_url = pdf_url[1:]
 
-        # Ensure we have the full domain
         return (
             f"https://sansad.in/{pdf_url}"
             if not pdf_url.startswith("sansad.in")
@@ -51,7 +43,6 @@ class SansadClient:
     async def fetch_questions(
         self, ministry: str = None, page: int = 1
     ) -> List[Dict[str, Any]]:
-        """Fetch questions from the API with retries"""
         params = {
             "loksabhaNo": Config.DEFAULT_LOK_SABHA,
             "sessionNumber": Config.DEFAULT_SESSION,
@@ -122,33 +113,26 @@ class SansadClient:
                 return []
 
     async def download_pdf(self, pdf_url: str) -> Optional[str]:
-        """Download and cache PDF file with error handling"""
         if not pdf_url:
             return None
 
         try:
-            # Format the PDF URL properly
             formatted_url = self._format_pdf_url(pdf_url)
 
-            # Extract filename from URL
             parsed_url = urlparse(formatted_url)
             filename = os.path.basename(parsed_url.path)
 
-            # Ensure filename ends with .pdf
             if not filename.endswith(".pdf"):
                 filename = f"{filename}.pdf"
 
-            # Create file path
             file_path = Path(Config.PDF_CACHE_DIR) / filename
 
-            # Check if already downloaded
             if file_path.exists():
                 logger.info(f"Using cached PDF: {filename}")
                 return str(file_path)
 
             logger.info(f"Downloading PDF from: {formatted_url}")
 
-            # Try with retries
             retry_count = 0
             while retry_count < Config.MAX_RETRIES:
                 try:
@@ -160,7 +144,7 @@ class SansadClient:
                                 logger.error(f"PDF not found: {formatted_url}")
                                 return None
 
-                            if response.status == 429:  # Rate limited
+                            if response.status == 429:
                                 retry_count += 1
                                 wait_time = Config.RATE_LIMIT_DELAY * (2**retry_count)
                                 logger.warning(
@@ -172,14 +156,12 @@ class SansadClient:
                             response.raise_for_status()
                             content = await response.read()
 
-                            # Basic check for PDF content
                             if not content.startswith(b"%PDF"):
                                 logger.error(
                                     f"Downloaded content is not a PDF: {formatted_url}"
                                 )
                                 return None
 
-                            # Save the PDF
                             with open(file_path, "wb") as f:
                                 f.write(content)
 
@@ -229,12 +211,10 @@ class SansadClient:
                         if not isinstance(q, dict):
                             continue
 
-                        # Ensure ministry exists
                         ministry = q.get("ministry")
                         if not ministry:
                             continue
 
-                        # Clean up PDF URL
                         pdf_url = q.get("questionsFilePath", "")
 
                         processed_q = {
